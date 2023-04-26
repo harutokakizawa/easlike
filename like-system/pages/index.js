@@ -3,12 +3,24 @@ import Image from 'next/image'
 import styles from '@/styles/Home.module.css'
 import axios from 'axios';
 import React from 'react';
+import { Box, Heading } from '@chakra-ui/react'
+import { Link } from '@chakra-ui/react'
+import { Divider } from '@chakra-ui/react'
+import { Text } from '@chakra-ui/react'
+import { Card, CardHeader, CardBody, CardFooter } from '@chakra-ui/react'
+import { Stack, HStack, VStack } from '@chakra-ui/react'
+import { Input } from '@chakra-ui/react'
+import { IconButton } from '@chakra-ui/react'
+import { CheckIcon } from '@chakra-ui/icons'
+
+
+
 
 
 
 export async function getServerSideProps() {
   try {
-    const response = await axios.get('https://easscan.org/api/getAttestations?limit=10&page=2');
+    const response = await axios.get('https://easscan.org/api/attestationsForSchema/0x33e9094830a5cba5554d1954310e4fbed2ef5f859ec1404619adea4207f391fd');
     const data = await response.data;
     const arr = Object.values(data);
     const dataArray = arr[0];
@@ -32,7 +44,7 @@ export async function getServerSideProps() {
 
 export default function Home({ dataArray }) {
 
-  console.log(dataArray);
+  //console.log(dataArray);
 
   return (
     <>
@@ -43,17 +55,67 @@ export default function Home({ dataArray }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      
+      <Heading as='h2' size='2xl'>
+        いいね一覧
+      </Heading>
+        
       
         
-          <ul>
-            {dataArray.map((item) => (
-              <li key={item.id}>{item.recipient}</li>
-            ))}
-          </ul>
 
+        <Link href={`https://easscan.org/schema/view/${dataArray[0].schema.id}`}>
+          Schema Link 
+        </Link>
+        
+        <Divider />
+        
+        <Stack spacing={3}>
           
-          <h1>テスト</h1>
+          <Input variant='filled' placeholder='Type your wallet address' />
+          <Input variant='filled' placeholder='Type the recipient wallet address' />
+          
+        </Stack>
+
+        <IconButton
+          colorScheme='teal'
+          aria-label='Call Segun'
+          size='lg'
+          icon={<CheckIcon />}
+        />
+
+
+          <ul>
+          <Card>
+          <CardHeader>
+            <Heading size='md'>ALL TX</Heading>
+          </CardHeader>
+            {dataArray.map((item) => (
+              <li key={item.id}>
+                
+                  
+                    <CardBody>
+                      <Stack spacing='4'>
+                        <Box>
+                          <Text pt='2' fontSize='sm'>From {item.attester} &gt; To {item.recipient}</Text>
+                        </Box>
+                      </Stack>
+                    </CardBody>
+                  
+                
+              </li>
+            ))}
+            </Card>
+          </ul>
+        
+          
+    
+      
+    
+          
+  
+    
+  
+
+     
           
         
     </>
