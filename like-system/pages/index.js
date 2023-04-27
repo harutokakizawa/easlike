@@ -40,7 +40,7 @@ export async function createOffchainAttestation(){
 
   const schemaEncoder = new SchemaEncoder("bool like");
   const encodedData = schemaEncoder.encodeData([
-    { name: "like", value: false, type: "bool" },
+    { name: "like", value: true, type: "bool" },
   ]);
 
   const provider = new ethers.providers.Web3Provider(window.ethereum);
