@@ -24,11 +24,10 @@ export async function getServerSideProps(){
 
     const r = await responce.data;
     const newArr = Object.values(r);
-    console.log(newArr);
+    
     const newDataArray = newArr[0];
     const newDataArray2 = Object.values(newDataArray);
     const newDataArray3 = newDataArray2[0];
-    console.log(newDataArray3[0].schemaId);
 
     return {
       props: { newDataArray3 }
@@ -110,24 +109,7 @@ export default function Home({newDataArray3}) {
           </Card>
         </ul>
         
-          
-    
-      
-    
-          
-  
-    
-  
-
-     
-          
         
     </>
   )
 }
-
-/*
-        
-   
-        
-*/
