@@ -15,36 +15,40 @@ import { CheckIcon } from '@chakra-ui/icons'
 
 
 
+export async function getServerSideProps(){
+  try{
+    const responce = await axios.post('https://easscan.org/graphql', {
+      query: "query Query($where: AttestationWhereInput){attestations(where: $where){id\nrecipient\nschemaId\nattester}}",
+      variables: `{"where": {"schemaId": {"equals": "0x33e9094830a5cba5554d1954310e4fbed2ef5f859ec1404619adea4207f391fd"}}}`
+    })
 
-
-
-export async function getServerSideProps() {
-  try {
-    const response = await axios.get('https://easscan.org/api/attestationsForSchema/0x33e9094830a5cba5554d1954310e4fbed2ef5f859ec1404619adea4207f391fd');
-    const data = await response.data;
-    const arr = Object.values(data);
-    const dataArray = arr[0];
+    const r = await responce.data;
+    const newArr = Object.values(r);
+    console.log(newArr);
+    const newDataArray = newArr[0];
+    const newDataArray2 = Object.values(newDataArray);
+    const newDataArray3 = newDataArray2[0];
+    console.log(newDataArray3[0].schemaId);
 
     return {
-      props: {
-        dataArray
-      }
-    }
+      props: { newDataArray3 }
+    }  
   } catch (error) {
     console.error(error);
     return {
       props: {
-        dataArray: []
+        newDataArray3: []
       }
     }
   }
-}
+};
+  
+
+  
 
 
 
-export default function Home({ dataArray }) {
-
-  //console.log(dataArray);
+export default function Home({newDataArray3}) {
 
   return (
     <>
@@ -59,12 +63,12 @@ export default function Home({ dataArray }) {
         いいね一覧
       </Heading>
         
-      
+      <Link href={`https://easscan.org/schema/view/${newDataArray3[0].schemaId}`}>
+          Schema Link 
+      </Link>  
         
 
-        <Link href={`https://easscan.org/schema/view/${dataArray[0].schema.id}`}>
-          Schema Link 
-        </Link>
+        
         
         <Divider />
         
@@ -82,13 +86,13 @@ export default function Home({ dataArray }) {
           icon={<CheckIcon />}
         />
 
-
-          <ul>
+   
+        <ul>
           <Card>
           <CardHeader>
             <Heading size='md'>ALL TX</Heading>
           </CardHeader>
-            {dataArray.map((item) => (
+            {newDataArray3.map((item) => (
               <li key={item.id}>
                 
                   
@@ -103,8 +107,8 @@ export default function Home({ dataArray }) {
                 
               </li>
             ))}
-            </Card>
-          </ul>
+          </Card>
+        </ul>
         
           
     
@@ -122,3 +126,8 @@ export default function Home({ dataArray }) {
   )
 }
 
+/*
+        
+   
+        
+*/
