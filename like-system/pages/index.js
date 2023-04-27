@@ -2,16 +2,70 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '@/styles/Home.module.css'
 import axios from 'axios';
-import React from 'react';
 import { Box, Heading } from '@chakra-ui/react'
 import { Link } from '@chakra-ui/react'
 import { Divider } from '@chakra-ui/react'
 import { Text } from '@chakra-ui/react'
-import { Card, CardHeader, CardBody, CardFooter } from '@chakra-ui/react'
-import { Stack, HStack, VStack } from '@chakra-ui/react'
+import { Card, CardHeader, CardBody } from '@chakra-ui/react'
+import { Stack } from '@chakra-ui/react'
 import { Input } from '@chakra-ui/react'
 import { IconButton } from '@chakra-ui/react'
 import { CheckIcon } from '@chakra-ui/icons'
+import { Offchain, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
+import { ethers } from "ethers"
+import React, { useState } from "react";
+
+
+
+export function getUnixTime(){
+  const date = new Date() ;
+
+  const a = date.getTime() ;
+
+  const unixTime = Math.floor( a / 1000 ) ;
+
+  return unixTime;
+}
+
+export async function createOffchainAttestation(){
+  const EASContractAddress = "0xC2679fBD37d54388Ce493F1DB75320D236e1815e";
+  const EAS_CONFIG = {
+    address: EASContractAddress,
+    version: "0.26", // 0.26
+    chainId: "11155111",
+  };
+
+
+  const offchain = new Offchain(EAS_CONFIG);
+
+  const schemaEncoder = new SchemaEncoder("bool like");
+  const encodedData = schemaEncoder.encodeData([
+    { name: "like", value: false, type: "bool" },
+  ]);
+
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+
+
+
+
+  const offchainAttestation = await offchain.signOffchainAttestation({
+    recipient: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+    // Unix timestamp of when attestation expires. (0 for no expiration)
+    expirationTime: 0,
+    // Unix timestamp of current time
+    time: getUnixTime(),
+    revocable: true,
+    nonce: 0,
+    schema: "0x33e9094830a5cba5554d1954310e4fbed2ef5f859ec1404619adea4207f391fd",
+    refUID: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    data: encodedData,
+  }, signer);
+
+  console.log(offchainAttestation);
+
+}
+
 
 
 
@@ -49,6 +103,12 @@ export async function getServerSideProps(){
 
 export default function Home({newDataArray3}) {
 
+  const [recipientAddress, setRecipientAddress] = useState("0x0000000000000000000000000000000000000000000000000000000000000064");
+
+  function handleClick() {
+    createOffchainAttestation();
+  };
+  
   return (
     <>
       <Head>
@@ -72,9 +132,8 @@ export default function Home({newDataArray3}) {
         <Divider />
         
         <Stack spacing={3}>
-          
-          <Input variant='filled' placeholder='Type your wallet address' />
-          <Input variant='filled' placeholder='Type the recipient wallet address' />
+        
+          <Input variant='filled' placeholder='Type the recipient wallet address' type= 'bytes32' value={recipientAddress} onChange={(e) => setRecipientAddress(e.target.value)}/>
           
         </Stack>
 
@@ -83,8 +142,8 @@ export default function Home({newDataArray3}) {
           aria-label='Call Segun'
           size='lg'
           icon={<CheckIcon />}
+          onClick={handleClick}
         />
-
    
         <ul>
           <Card>
