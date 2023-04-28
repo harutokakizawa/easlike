@@ -13,7 +13,9 @@ import { IconButton } from '@chakra-ui/react'
 import { CheckIcon } from '@chakra-ui/icons'
 import { Offchain, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
 import { ethers } from "ethers"
-import React, { useState } from "react";
+import React, { useState } from 'react';
+
+
 
 
 
@@ -27,7 +29,7 @@ export function getUnixTime(){
   return unixTime;
 }
 
-export async function createOffchainAttestation(){
+export async function createOffchainAttestation(recipient){
   const EASContractAddress = "0xC2679fBD37d54388Ce493F1DB75320D236e1815e";
   const EAS_CONFIG = {
     address: EASContractAddress,
@@ -47,10 +49,10 @@ export async function createOffchainAttestation(){
   const signer = provider.getSigner();
 
 
-
+  const recipientAddress = recipient;
 
   const offchainAttestation = await offchain.signOffchainAttestation({
-    recipient: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+    recipient: recipientAddress,
     // Unix timestamp of when attestation expires. (0 for no expiration)
     expirationTime: 0,
     // Unix timestamp of current time
@@ -103,10 +105,10 @@ export async function getServerSideProps(){
 
 export default function Home({newDataArray3}) {
 
-  const [recipientAddress, setRecipientAddress] = useState("0x0000000000000000000000000000000000000000000000000000000000000064");
-
+  const [recipient, setRecipient] = useState('');
+  
   function handleClick() {
-    createOffchainAttestation();
+    createOffchainAttestation(recipient);
   };
   
   return (
@@ -133,7 +135,7 @@ export default function Home({newDataArray3}) {
         
         <Stack spacing={3}>
         
-          <Input variant='filled' placeholder='Type the recipient wallet address' type= 'bytes32' value={recipientAddress} onChange={(e) => setRecipientAddress(e.target.value)}/>
+          <Input variant='filled' placeholder='Type the recipient wallet address' type="text"  value={recipient} onChange={(e) => setRecipient(e.target.value)}/>
           
         </Stack>
 
