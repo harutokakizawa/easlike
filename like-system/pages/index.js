@@ -17,8 +17,6 @@ import React, { useState } from 'react';
 
 
 
-
-
 export function getUnixTime(){
   const date = new Date() ;
 
@@ -30,11 +28,11 @@ export function getUnixTime(){
 }
 
 export async function createOffchainAttestation(recipient){
-  const EASContractAddress = "0xC2679fBD37d54388Ce493F1DB75320D236e1815e";
+  const EASContractAddress = "0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458";
   const EAS_CONFIG = {
     address: EASContractAddress,
     version: "0.26", // 0.26
-    chainId: "11155111",
+    chainId: "42161",
   };
 
 
