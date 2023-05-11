@@ -13,7 +13,7 @@ import { IconButton } from '@chakra-ui/react'
 import { CheckIcon } from '@chakra-ui/icons'
 import { Offchain, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
 import { ethers } from "ethers"
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 
 
 
@@ -43,7 +43,7 @@ export async function createOffchainAttestation(recipient){
     { name: "like", value: true, type: "bool" },
   ]);
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const provider = new ethers.providers.Web3Provider(ethereum);
   const signer = provider.getSigner();
 
 
@@ -104,7 +104,54 @@ export async function getServerSideProps(){
 export default function Home({newDataArray3}) {
 
   const [recipient, setRecipient] = useState('');
+  const [currentAccount, setCurrentAccount] = useState("");
+
+  console.log("currentAccount: ", currentAccount);
+
+  const checkIfWalletIsConnected = async () => {
+    try {
+      const { ethereum } = window;
+      if (!ethereum) {
+        console.log("Make sure you have MetaMask!");
+        return;
+      } else {
+        console.log("We have the ethereum object", ethereum);
+      }
+      /* ユーザーのウォレットへのアクセスが許可されているかどうかを確認します */
+      const accounts = await ethereum.request({ method: "eth_accounts" });
+      if (accounts.length !== 0) {
+        const account = accounts[0];
+        console.log("Found an authorized account:", account);
+        setCurrentAccount(account);
+      } else {
+        console.log("No authorized account found");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const connectWallet = async () => {
+    try {
+      const { ethereum } = window;
+      if (!ethereum) {
+        alert("Get MetaMask!");
+        return;
+      }
+      const accounts = await ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      console.log("Connected: ", accounts[0]);
+      setCurrentAccount(accounts[0]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   
+  useEffect(() => {
+    checkIfWalletIsConnected();
+  }, []);
+
   function handleClick() {
     createOffchainAttestation(recipient);
   };
@@ -124,10 +171,20 @@ export default function Home({newDataArray3}) {
         
       <Link href={`https://easscan.org/schema/view/${newDataArray3[0].schemaId}`}>
           Schema Link 
-      </Link>  
-        
+      </Link>
 
-        
+      <Divider />
+      {!currentAccount && (
+          <button onClick={connectWallet}>
+            Connect Wallet
+          </button>
+        )}
+        {currentAccount && (
+          <button onClick={connectWallet}>
+            Wallet Connected
+          </button>
+        )}
+
         
         <Divider />
         
